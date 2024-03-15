@@ -1,7 +1,8 @@
 import express from "express";
 import {
-  loginController,
-  registerController,
+  forgotPasswordToken, handleRefreshToken,
+  loginController, logoutController,
+  registerController, resetPassword, updatePassword,
   updateStudent,
 } from "../Controllers/studentControllers.js";
 import {authMiddleware} from "../Middlewares/authMiddleware.js";
@@ -10,6 +11,13 @@ const router = express.Router();
 
 //register
 router.post("/register", registerController);
+router.post("/forgot-password-token",forgotPasswordToken)
+router.get ("/refresh",handleRefreshToken)
 router.post("/login", loginController);
 router.put("/edit",authMiddleware, updateStudent);
+router.put("/password",authMiddleware,updatePassword)
+router.put("/reset-password/:token",resetPassword)
+router.get ("/logout",logoutController)
+
+
 export default router;

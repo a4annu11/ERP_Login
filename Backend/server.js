@@ -3,8 +3,10 @@ import cors from "cors";
 import connectDB from "./Database/db.js";
 import studentRoutes from "./Routes/studentRoutes.js";
 import morgan from "morgan"
+import cookieParser from "cookie-parser"
 
 const app = express();
+app.use(cookieParser())
 
 connectDB();
 
