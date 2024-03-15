@@ -23,5 +23,4 @@ app.use("/api/teacher", teacherRoutes);
 app.listen(8080, () => {
   console.log("listening on port 8080");
 });
-// me change hua hu push ke baad
-// Anurag
+
