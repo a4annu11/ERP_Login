@@ -4,6 +4,7 @@ import generateToken from "../Middlewares/jwtToken.js";
 import generateRefreshToken from "../Middlewares/refreshToken.js";
 import jwt from "jsonwebtoken";
 import sendEmail from "../Helper/EmailSend.js";
+import { createEmailVerificationToken } from "../Helper/EmailVerification.js";
 
 export const registerController = async (req, res) => {
   try {
@@ -27,15 +28,52 @@ export const registerController = async (req, res) => {
       password: hashedPassword,
       batch,
     });
+    // Generate email verification token
+    const emailVerificationToken = await createEmailVerificationToken(student._id);
 
+    // Send verification email
+    const verificationLink = `http://localhost:8080/api/student/verify-email/${emailVerificationToken}`;
+    const emailContent = `
+      <p>Hey ${student.name},</p>
+      <p>Please click on the following link to verify your email:</p>
+      <p><a href="${verificationLink}">${verificationLink}</a></p>
+    `;
+    await sendEmail({
+      to: email,
+      subject: "Email Verification",
+      html: emailContent,
+    });
+
+    // Include the email verification token in the response
     res.status(200).send({
       success: true,
-      message: "Student registered successfully",
+      message: "Student registered successfully. Verification email sent.",
       student,
+      emailVerificationToken,
     });
   } catch (error) {
     console.error("Error in registration:", error);
     res.status(500).send({ success: false, message: "Error in registration" });
+  }
+};
+
+// Email verification controller
+export const verifyEmail = async (req, res) => {
+  const token = req.params.token;
+
+  try {
+    // Verify the token
+    const decoded = jwt.verify(token, "EmailVerify");
+    const userId = decoded?.studentId;
+    console.log(userId)
+
+    // Update isEmailVerified field in the database
+    await studentModel.findByIdAndUpdate(userId, { isEmailVerified: true });
+
+    res.status(200).send({ success: true, message: "Email verified successfully" });
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    res.status(500).send({ success: false, message: "Error verifying email" });
   }
 };
 
@@ -51,6 +89,11 @@ export const loginController = async (req, res) => {
     const student = await studentModel.findOne({ email });
     if (!student) {
       return res.status(404).send({ success: false, message: "Email does not exist" });
+    }
+
+    // Check if the email is verified
+    if (!student.isEmailVerified) {
+      return res.status(401).send({ success: false, message: "Email is not verified. Please verify your email first." });
     }
 
     // Verify the password
@@ -86,7 +129,6 @@ export const loginController = async (req, res) => {
     res.status(500).send({ success: false, message: "Error in login" });
   }
 };
-
 // Handle refresh token
 export const handleRefreshToken = async (req, res) => {
   const cookie = req.cookies;
@@ -237,7 +279,7 @@ export const forgotPasswordToken = async (req, res) => {
       html: emailContent,
     });
 
-    res.json({ success: true, message: "Password reset token sent successfully" ,token});
+    res.json({ success: true, message: "Password reset token sent successfully" });
   } catch (error) {
     console.error("Error generating password reset token:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -258,8 +300,6 @@ export const resetPassword = async (req, res) => {
       passwordResetExpires: { $gt: Date.now() }, // Check if the token is not expired
     });
 
-    console.log("Found student:", student);
-
     // If student not found or token expired, return error
     if (!student) {
       console.error("Token expired or invalid");
@@ -267,7 +307,7 @@ export const resetPassword = async (req, res) => {
     }
 
     // Set new password for the student
-    student.password = password;
+    student.password = await hashPassword(password);
     student.passwordResetToken = undefined;
     student.passwordResetExpires = undefined;
     await student.save();

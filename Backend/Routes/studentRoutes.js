@@ -3,7 +3,7 @@ import {
   forgotPasswordToken, handleRefreshToken,
   loginController, logoutController,
   registerController, resetPassword, updatePassword,
-  updateStudent,
+  updateStudent, verifyEmail,
 } from "../Controllers/studentControllers.js";
 import {authMiddleware} from "../Middlewares/authMiddleware.js";
 
@@ -17,6 +17,7 @@ router.post("/login", loginController);
 router.put("/edit",authMiddleware, updateStudent);
 router.put("/password",authMiddleware,updatePassword)
 router.put("/reset-password/:token",resetPassword)
+router.get('/verify-email/:token', verifyEmail);
 router.get ("/logout",logoutController)
 
 

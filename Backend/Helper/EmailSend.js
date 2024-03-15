@@ -14,11 +14,11 @@ const sendEmail = async (data, req, res) => {
 
         // send mail with defined transport object
         const info = await transporter.sendMail({
-            from: '"Forgot Password" <abc@gmail.com.com>', // sender address
+            from: '"E-Campus(ERP-Login)" <abc@gmail.com.com>', // sender address
             to: data.to, // list of receivers
             subject: data.subject, // Subject line
             text: data.text, // plain text body
-            html: data.htm, // html body
+            html: data.html, // html body
         });
 
         console.log("Message sent: %s", info.messageId);

@@ -25,9 +25,15 @@ const studentSchema = new mongoose.Schema(
           type:String,
           default:"student"
       },
+      isEmailVerified:{
+        type:Boolean,
+        default: false
+      },
       passwordChangedAt : Date,
       passwordResetToken : String,
       passwordResetExpires:Date,
+      emailVerificationToken : String,
+      emailVerificationExpires : Date,
   },
   { timestamps: true },
 
