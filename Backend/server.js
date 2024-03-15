@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import connectDB from "./Database/db.js";
 import studentRoutes from "./Routes/studentRoutes.js";
+import teacherRoutes from "./Routes/teacherRoutes.js";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 
@@ -17,6 +18,7 @@ app.use(morgan("dev"));
 
 //routes
 app.use("/api/student", studentRoutes);
+app.use("/api/teacher", teacherRoutes);
 
 app.listen(8080, () => {
   console.log("listening on port 8080");
