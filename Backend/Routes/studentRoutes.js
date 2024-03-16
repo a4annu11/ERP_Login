@@ -1,7 +1,7 @@
 import express from "express";
 import {
   forgotPasswordToken, handleRefreshToken,
-  loginController, logoutController,
+  loginController, logoutController, ProfileStudent,
   registerController, resetPassword, updatePassword,
   updateStudent, verifyEmail,
 } from "../Controllers/studentControllers.js";
@@ -19,6 +19,6 @@ router.put("/password",authMiddleware,updatePassword)
 router.put("/reset-password/:token",resetPassword)
 router.get('/verify-email/:token', verifyEmail);
 router.get ("/logout",logoutController)
-
+router.get ("/profile",authMiddleware,ProfileStudent)
 
 export default router;

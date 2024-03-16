@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -7,12 +7,14 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [batch, setBatch] = useState("");
+  const [loading, setLoading] = useState(false); 
 
   const navigate = useNavigate();
 
   // form function
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); 
     try {
       const res = await axios.post("http://localhost:8080/api/student/register", {
         name,
@@ -29,6 +31,8 @@ const Register = () => {
     } catch (error) {
       console.log(error);
       alert("Something went wrong");
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -82,9 +86,16 @@ const Register = () => {
               required
             />
           </div>
-          <button type="submit" className="btn btn-primary">
-            REGISTER
-          </button>
+      
+          {loading ? (
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          ) : (
+            <button type="submit" className="btn btn-primary">
+              REGISTER
+            </button>
+          )}
         </form>
       </div>
     </>

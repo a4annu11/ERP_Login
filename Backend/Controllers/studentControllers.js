@@ -122,6 +122,7 @@ export const loginController = async (req, res) => {
       email: student?.email,
       batch: student?.batch,
       token: accessToken,
+      role:student?.role,
       refreshToken: refreshToken
     });
   } catch (error) {
@@ -200,6 +201,17 @@ export const logoutController = async (req, res) => {
   }
 }
 
+export const ProfileStudent = async (req, res) => {
+  const { _id } = req.student;
+
+  try {
+    const PrStudent = await studentModel.findById(_id);
+    res.json({message:"Profile of Student" , data : PrStudent});
+  } catch (error) {
+    console.error("Error to get student Profile :", error);
+    res.status(500).send({ success: false, message: "Internal server error" });
+  }
+};
 
 export const updateStudent = async (req, res) => {
   const { _id } = req.student;
