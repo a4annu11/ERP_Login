@@ -13,7 +13,7 @@ connectDB();
 
 //middleware
 app.use(express.json());
-app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
+app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
 app.use(morgan("dev"));
 
 //routes
@@ -24,3 +24,4 @@ app.listen(8080, () => {
   console.log("listening on port 8080");
 });
 
+//Anurag change
