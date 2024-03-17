@@ -75,7 +75,10 @@ export const teacherloginController = async (req, res) => {
     res.status(200).send({
       success: true,
       message: "login successfully",
-      user,
+      user: {
+        name: user?.name,
+        email: user?.email,
+      },
       token,
     });
   } catch (error) {

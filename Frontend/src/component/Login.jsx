@@ -1,85 +1,107 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import './Login.css'
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/auth";
+import { useTeacherAuth } from "../context/teacherAuth";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [userType, setUserType] = useState('student');
-  const navigate = useNavigate(); 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("student"); 
+  const navigate = useNavigate();
+  const [auth, setAuth] = useAuth();
+  const [teacherauth, setTeacherAuth] = useTeacherAuth();
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-
-    const loginData = {
-      email,
-      password
-    };
-
+  const handleLogin = async (e) => {
+    e.preventDefault();
     try {
-      let apiUrl;
-      if (userType === 'student') {
-        apiUrl = 'http://localhost:8080/api/student/login'; 
-      } else {
-        apiUrl = 'http://localhost:8080/api/teacher/login'; 
+      let res;
+      if (role === "student") {
+        res = await axios.post("http://localhost:8080/api/student/login", {
+          email,
+          password,
+        });
+      } else if (role === "teacher") {
+        res = await axios.post("http://localhost:8080/api/teacher/teacher-login", {
+          email,
+          password,
+        });
       }
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(loginData)
-      });
-
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log(responseData);
-        if (responseData.role === 'student') {
-          navigate('/studentDashboard'); 
-        } else if (responseData.role === 'teacher') {
-          navigate('/teacherDashboard'); 
-        } else {
-          console.error('Unknown role:', responseData.role);
-          alert('Unknown role');
+      if (res && res.data && res.data.success) {
+        console.log(res.data)
+        alert(res.data && res.data.message);
+        
+        setAuth({
+          ...auth,
+          user: res.data.user,
+          token: res.data.token,
+        });
+        localStorage.setItem("auth", JSON.stringify(res.data));
+        if (role === "student") {
+          navigate("/student-dashboard");
+        } else if (role === "teacher") {
+          navigate("/teacher-dashboard");
+          setTeacherAuth({
+            ...teacherauth,
+            user: res.data.user,
+            token: res.data.token,
+          });
+          localStorage.setItem("teacher", JSON.stringify(res.data));
         }
+      } else if (res && res.data && res.data.message) {
+        console.log(res.data)
+        alert(res.data.message);
       } else {
-        const errorData = await response.json();
-        console.error('Login failed:', errorData.message);
-        alert('Login failed: ' + errorData.message);
+        console.log(res.data)
+        alert("Something went wrong");
       }
     } catch (error) {
-      console.error('Error during login:', error);
-      alert('Error during login');
+      console.log(error);
+      alert("Something went wrong");
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div className="container">
+      <h1>Login</h1>
+      <div className="mb-3">
+        <label htmlFor="role">Choose Role:</label>
+        <select
+          id="role"
+          className="form-control"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+        >
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+        </select>
+      </div>
       <form onSubmit={handleLogin}>
-        <div>
-          <label>
-            Email:
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-          </label>
+        <div className="mb-3">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="form-control"
+            id="exampleInputEmail1"
+            placeholder="Enter Your Email"
+            required
+          />
         </div>
-        <div>
-          <label>
-            Password:
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </label>
+        <div className="mb-3">
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="form-control"
+            id="exampleInputPassword1"
+            placeholder="Enter Your Password"
+            required
+          />
         </div>
-        <div>
-          <label>
-            User Type:
-            <select value={userType} onChange={(e) => setUserType(e.target.value)}>
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
-            </select>
-          </label>
-        </div>
-        <button type="submit">Login</button>
+        <button type="submit" className="btn btn-primary">
+          LOGIN
+        </button>
       </form>
     </div>
   );

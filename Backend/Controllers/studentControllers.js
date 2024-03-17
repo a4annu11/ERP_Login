@@ -1,4 +1,8 @@
-import { comparePassword, hashPassword, createPasswordResetToken } from "../Helper/hashFunction.js";
+import {
+  comparePassword,
+  hashPassword,
+  createPasswordResetToken,
+} from "../Helper/hashFunction.js";
 import studentModel from "../Models/studentModel.js";
 import generateToken from "../Middlewares/jwtToken.js";
 import generateRefreshToken from "../Middlewares/refreshToken.js";
@@ -29,7 +33,9 @@ export const registerController = async (req, res) => {
       batch,
     });
     // Generate email verification token
-    const emailVerificationToken = await createEmailVerificationToken(student._id);
+    const emailVerificationToken = await createEmailVerificationToken(
+      student._id
+    );
 
     // Send verification email
     const verificationLink = `http://localhost:8080/api/student/verify-email/${emailVerificationToken}`;
@@ -65,12 +71,14 @@ export const verifyEmail = async (req, res) => {
     // Verify the token
     const decoded = jwt.verify(token, "EmailVerify");
     const userId = decoded?.studentId;
-    console.log(userId)
+    console.log(userId);
 
     // Update isEmailVerified field in the database
     await studentModel.findByIdAndUpdate(userId, { isEmailVerified: true });
 
-    res.status(200).send({ success: true, message: "Email verified successfully" });
+    res
+      .status(200)
+      .send({ success: true, message: "Email verified successfully" });
   } catch (error) {
     console.error("Error verifying email:", error);
     res.status(500).send({ success: false, message: "Error verifying email" });
@@ -82,48 +90,69 @@ export const loginController = async (req, res) => {
     const { email, password } = req.body;
     // Validation
     if (!email || !password) {
-      return res.status(400).send({ success: false, message: "Invalid email or password" });
+      return res
+        .status(400)
+        .send({ success: false, message: "Invalid email or password" });
     }
 
     // Check if the student exists
     const student = await studentModel.findOne({ email });
     if (!student) {
-      return res.status(404).send({ success: false, message: "Email does not exist" });
+      return res
+        .status(404)
+        .send({ success: false, message: "Email does not exist" });
     }
 
     // Check if the email is verified
     if (!student.isEmailVerified) {
-      return res.status(401).send({ success: false, message: "Email is not verified. Please verify your email first." });
+      return res.status(401).send({
+        success: false,
+        message: "Email is not verified. Please verify your email first.",
+      });
     }
 
     // Verify the password
     const match = await comparePassword(password, student.password);
     if (!match) {
-      return res.status(401).send({ success: false, message: "Password does not match" });
+      return res
+        .status(401)
+        .send({ success: false, message: "Password does not match" });
     }
 
     // Generate refresh token
     const refreshToken = await generateRefreshToken(student._id);
 
     // Update refresh token in the database
-    await studentModel.findByIdAndUpdate(student._id, { refreshToken: refreshToken },{ new: true });
+    await studentModel.findByIdAndUpdate(
+      student._id,
+      { refreshToken: refreshToken },
+      { new: true }
+    );
 
     // Set refresh token in a cookie with expiration time
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days
+      expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days
     });
 
     // Respond with student details, access token, and refresh token
     const accessToken = generateToken(student?._id);
     res.json({
       _id: student?._id,
-      name: student?.name,
-      email: student?.email,
-      batch: student?.batch,
-      token: accessToken,
-      role:student?.role,
-      refreshToken: refreshToken
+      success: true,
+      message: "Login successful",
+      // name: student?.name,
+      // email: student?.email,
+      // batch: student?.batch,
+      // token: accessToken,
+      // refreshToken: refreshToken,
+      user: {
+        name: student?.name,
+        email: student?.email,
+        batch: student?.batch,
+        token: accessToken,
+        refreshToken: refreshToken,
+      },
     });
   } catch (error) {
     console.error("Error in login:", error);
@@ -135,11 +164,13 @@ export const handleRefreshToken = async (req, res) => {
   const cookie = req.cookies;
   // Check if refresh token is present in cookies
   if (!cookie?.refreshToken) {
-    return res.status(400).send({ success: false, message: "No Refresh Token in Cookies" });
+    return res
+      .status(400)
+      .send({ success: false, message: "No Refresh Token in Cookies" });
   }
 
   const refreshToken = cookie.refreshToken;
-  console.log(refreshToken)
+  console.log(refreshToken);
 
   try {
     // Find the student by refreshToken
@@ -147,13 +178,19 @@ export const handleRefreshToken = async (req, res) => {
 
     // Check if user exists
     if (!student) {
-      return res.status(404).send({ success: false, message: "No Refresh token present in db or not matched" });
+      return res.status(404).send({
+        success: false,
+        message: "No Refresh token present in db or not matched",
+      });
     }
 
     // Verify the refresh token and generate a new access token
     jwt.verify(refreshToken, "0822IT21", (err, decoded) => {
       if (err || student._id !== decoded.id) {
-        return res.status(401).send({ success: false, message: "There is something wrong with refresh token" });
+        return res.status(401).send({
+          success: false,
+          message: "There is something wrong with refresh token",
+        });
       }
       const accessToken = generateToken(student._id);
       res.json({ accessToken });
@@ -168,7 +205,9 @@ export const logoutController = async (req, res) => {
   const cookie = req.cookies;
   // Check if refresh token is present in cookies
   if (!cookie?.refreshToken) {
-    return res.status(400).send({ success: false, message: "No Refresh Token in Cookies" });
+    return res
+      .status(400)
+      .send({ success: false, message: "No Refresh Token in Cookies" });
   }
 
   const refreshToken = cookie.refreshToken;
@@ -179,7 +218,7 @@ export const logoutController = async (req, res) => {
 
     // If user doesn't exist, clear the cookie and send 204 status
     if (!student) {
-      res.clearCookie('refreshToken', {
+      res.clearCookie("refreshToken", {
         httpOnly: true,
         secure: true,
       });
@@ -190,26 +229,14 @@ export const logoutController = async (req, res) => {
     await studentModel.findOneAndUpdate({ refreshToken }, { refreshToken: "" });
 
     // Clear the refresh token cookie and send 204 status
-    res.clearCookie('refreshToken', {
+    res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: true,
     });
-    res.status(204).json({success:true, message:"Logout Succesfully"});
+    res.status(204).json({ success: true, message: "Logout Succesfully" });
   } catch (error) {
     console.error("Error logging out:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
-  }
-}
-
-export const ProfileStudent = async (req, res) => {
-  const { _id } = req.student;
-
-  try {
-    const PrStudent = await studentModel.findById(_id);
-    res.json({message:"Profile of Student" , data : PrStudent});
-  } catch (error) {
-    console.error("Error to get student Profile :", error);
-    res.status(500).send({ success: false, message: "Internal server error" });
   }
 };
 
@@ -218,11 +245,11 @@ export const updateStudent = async (req, res) => {
 
   try {
     const updatedStudent = await studentModel.findByIdAndUpdate(
-        _id,
-        { name: req.body.name },
-        { new: true }
+      _id,
+      { name: req.body.name },
+      { new: true }
     );
-    res.json({message:"Update done " , data : updatedStudent});
+    res.json({ message: "Update done ", data: updatedStudent });
   } catch (error) {
     console.error("Error updating student:", error);
     res.status(500).send({ success: false, message: "Internal server error" });
@@ -240,9 +267,9 @@ export const updatePassword = async (req, res) => {
     }
 
     const updatedStudent = await studentModel.findByIdAndUpdate(
-        _id,
-        { password: hashedPassword },
-        { new: true }
+      _id,
+      { password: hashedPassword },
+      { new: true }
     );
 
     res.json({ message: "Password changed successfully" });
@@ -262,7 +289,9 @@ export const forgotPasswordToken = async (req, res) => {
 
     // If student not found, return error
     if (!student) {
-      return res.status(404).json({ success: false, message: "Student not found with this email" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Student not found with this email" });
     }
 
     // Generate password reset token with expiration time
@@ -291,7 +320,10 @@ export const forgotPasswordToken = async (req, res) => {
       html: emailContent,
     });
 
-    res.json({ success: true, message: "Password reset token sent successfully" });
+    res.json({
+      success: true,
+      message: "Password reset token sent successfully",
+    });
   } catch (error) {
     console.error("Error generating password reset token:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -301,7 +333,7 @@ export const forgotPasswordToken = async (req, res) => {
 // Reset Password Controller
 export const resetPassword = async (req, res) => {
   const { password } = req.body;
-  const {token} = req.params;
+  const { token } = req.params;
 
   try {
     console.log("Received token:", token);
@@ -315,7 +347,9 @@ export const resetPassword = async (req, res) => {
     // If student not found or token expired, return error
     if (!student) {
       console.error("Token expired or invalid");
-      return res.status(400).json({ success: false, message: "Token expired or invalid" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Token expired or invalid" });
     }
 
     // Set new password for the student

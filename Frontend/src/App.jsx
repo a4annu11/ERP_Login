@@ -1,18 +1,20 @@
-import { useState } from 'react'
 import './App.css'
 import { Routes, Route } from "react-router-dom";
 import Register from './component/Register';
 import Login from './component/Login';
+import Student from './component/Student';
+import Teacher from './component/Teacher';
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
     <Routes>
       <Route path='/' element={<Register/>} />
-      <Route path='/login' element={<Login/>} />
-    
+      <Route path='/student-dashboard' element={<Student/>} />
+      <Route path='/teacher-dashboard' element={<Teacher/>} />
+      <Route path='/login' element={<Login/>}  />
+      {/* <Route path="/verify-email/:token" component={VerifyEmail} /> */}
     </Routes>
     </>
   )

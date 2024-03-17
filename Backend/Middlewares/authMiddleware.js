@@ -12,20 +12,20 @@ export const authMiddleware = async (req, res, next) => {
         const student = await StudentModel.findById(decoded?.id);
         if (!student) {
           return res
-              .status(401)
-              .json({ success: false, message: "Invalid token" });
+            .status(401)
+            .json({ success: false, message: "Invalid token" });
         }
         req.student = student;
         next();
       } else {
         return res
-            .status(401)
-            .json({ success: false, message: "Token not provided" });
+          .status(401)
+          .json({ success: false, message: "Token not provided" });
       }
     } else {
       return res
-          .status(401)
-          .json({ success: false, message: "Invalid token format" });
+        .status(401)
+        .json({ success: false, message: "Invalid token format" });
     }
   } catch (err) {
     console.error("Error in authMiddleware:", err);
@@ -33,8 +33,8 @@ export const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ success: false, message: "Token expired" });
     } else {
       return res
-          .status(500)
-          .json({ success: false, message: "Internal server error" });
+        .status(500)
+        .json({ success: false, message: "Internal server error" });
     }
   }
 };
@@ -42,9 +42,7 @@ export const authMiddleware = async (req, res, next) => {
 // Admin access
 export const isAdmin = async (req, res, next) => {
   try {
-    const user = await StudentModel.findById(req.user._id);
-    console.log(user)
-    console.log(student)
+    const user = await StudentModel.findById(req.student._id);
     if (user.role !== "admin") {
       return res.status(401).send({
         success: false,
