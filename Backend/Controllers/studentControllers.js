@@ -9,6 +9,7 @@ import generateRefreshToken from "../Middlewares/refreshToken.js";
 import jwt from "jsonwebtoken";
 import sendEmail from "../Helper/EmailSend.js";
 import { createEmailVerificationToken } from "../Helper/EmailVerification.js";
+// import attendanceModel from "../Models/attendanceModel.js";
 
 export const registerController = async (req, res) => {
   try {
@@ -361,3 +362,25 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+// export const viewAttendance = async (req, res) => {
+//   try {
+//     const studentId = req.params.studentId;
+//     const attendance = await attendanceModel
+//       .find({ student: studentId })
+//       .sort({ date: "desc" });
+
+//     const presentCount = attendance.filter(
+//       (entry) => entry.status === "Present"
+//     ).length;
+
+//     res.status(200).json({
+//       count: attendance.length,
+//       presentCount,
+//       studentId,
+//       attendance,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };

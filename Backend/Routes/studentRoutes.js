@@ -11,6 +11,7 @@ import {
   verifyEmail,
 } from "../Controllers/studentControllers.js";
 import { authMiddleware } from "../Middlewares/authMiddleware.js";
+import { viewAttendance } from "../Controllers/attendanceController.js";
 
 const router = express.Router();
 
@@ -24,5 +25,7 @@ router.put("/password", authMiddleware, updatePassword);
 router.put("/reset-password/:token", resetPassword);
 router.get("/verify-email/:token", verifyEmail);
 router.get("/logout", logoutController);
+
+router.get("/view/:studentId", viewAttendance);
 
 export default router;

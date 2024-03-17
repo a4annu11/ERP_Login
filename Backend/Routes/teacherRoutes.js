@@ -12,6 +12,8 @@ import {
   teacherloginController,
 } from "../Controllers/teacherControllers.js";
 
+import { uploadAttendance } from "../Controllers/attendanceController.js";
+
 const router = express.Router();
 
 //register
@@ -25,4 +27,7 @@ router.get(
   isTeacher,
   teacherTestController
 );
+
+router.post("/upload", uploadAttendance);
+
 export default router;
