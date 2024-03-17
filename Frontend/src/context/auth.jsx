@@ -4,10 +4,9 @@ import axios from "axios";
 const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({
-    user: null,
+    user: {},
     token: "",
-  });
-
+});
 
   axios.defaults.headers.common["Authorization"] = auth?.token;
 
@@ -18,16 +17,31 @@ const AuthProvider = ({ children }) => {
       setAuth({
         ...auth,
         user: parseData.user,
-        token: parseData.token,
+        token: parseData.token, 
       });
     }
     //eslint-disable-next-line
   }, []);
+
+  let isLoggedIn = !!auth.token;
+
+  console.log(isLoggedIn);
+
+  const LogoutUser = ()=>{
+    setAuth({
+      user: {},
+      token: ""
+    });
+    return localStorage.removeItem("auth");
+  }
+  
+
   return (
-    <AuthContext.Provider value={[auth, setAuth]}>
+    <AuthContext.Provider value={[auth, setAuth, LogoutUser, isLoggedIn]}>
       {children}
     </AuthContext.Provider>
   );
+  
 };
 
 // custom hook

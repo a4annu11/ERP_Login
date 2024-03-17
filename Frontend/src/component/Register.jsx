@@ -94,8 +94,8 @@ const Register = () => {
 
   return (
     <>
-      <div className="container mt-5">
-        <div className="row d-flex align-items-center">
+      <div className="container ">
+        <div className="row d-flex align-items-center  ">
           <div className="col-lg-8 col-md-12">
             <img src={img} className="img-fluid" alt="Welcome" />
           </div>

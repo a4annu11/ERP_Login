@@ -20,11 +20,15 @@ const Login = () => {
         res = await axios.post("http://localhost:8080/api/student/login", {
           email,
           password,
+        }, {
+          withCredentials: true
         });
       } else if (role === "teacher") {
         res = await axios.post("http://localhost:8080/api/teacher/teacher-login", {
           email,
           password,
+        }, {
+          withCredentials: true
         });
       }
       if (res && res.data && res.data.success) {

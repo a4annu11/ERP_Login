@@ -141,11 +141,7 @@ export const loginController = async (req, res) => {
       _id: student?._id,
       success: true,
       message: "Login successful",
-      // name: student?.name,
-      // email: student?.email,
-      // batch: student?.batch,
-      // token: accessToken,
-      // refreshToken: refreshToken,
+      token: accessToken,
       user: {
         name: student?.name,
         email: student?.email,

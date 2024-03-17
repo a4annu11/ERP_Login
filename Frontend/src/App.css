@@ -1,8 +1,77 @@
+  body{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-.card {
-  padding: 2em;
+  /* Sidebar */
+.main-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 250px;
+  z-index: 1030;
+  background-color: #6c757d;
 }
 
-.read-the-docs {
-  color: #888;
+.brand-link {
+  display: block;
+  padding: 15px;
+  text-align: center;
+}
+
+.brand-image {
+  width: 50px; 
+}
+
+.brand-text {
+  font-size: 18px;
+}
+
+.sidebar {
+  padding-bottom: 20px;
+}
+
+.user-panel {
+  padding: 20px;
+  background-color: #343a40;
+  color: #fff;
+}
+
+.user-panel .info a {
+  color: #fff;
+}
+
+.nav-pills .nav-link {
+  padding: 10px 20px;
+  color: #fff;
+}
+
+.nav-pills .nav-link i {
+  margin-right: 10px;
+}
+
+.nav-treeview {
+  padding-left: 20px;
+}
+
+.nav-treeview .nav-link {
+  padding: 5px 15px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background-color: #343a40;;
+}
+/* User Image */
+.user-panel .image img {
+  width: 50px; 
+  height: 50px;
+  border-radius: 50%; 
+}
+
+a{
+  text-decoration: none;
 }
